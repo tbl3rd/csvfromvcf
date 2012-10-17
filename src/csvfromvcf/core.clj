@@ -58,7 +58,7 @@
   representing the vCard file cf."
   [cf]
   (with-open [in (clojure.java.io/reader cf)]
-    (reduce (fn [m [k v]] (assoc m k (conj (or (m k) []) v)))
+    (reduce (fn [m [k v]] (assoc m k (conj (m k []) v)))
             {} (map pairify (linify (line-seq in))))))
 
 (defn cardify
