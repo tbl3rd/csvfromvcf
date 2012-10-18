@@ -2,16 +2,18 @@
   (:require [clojure.java.io]))
 
 (defn linify
-  "Join multiple lines from ls on CRLFSP sequences."
+  "Join multiple lines from lines on CRLFSP sequences."
   ([lines] (linify lines ""))
   ([lines sofar]
-     (if-let [line (first lines)]
-       (if (empty? sofar)
-         (recur (rest lines) (str line))
-         (let [trimmed (clojure.string/trim line)]
-           (if (= line trimmed) (cons sofar (linify lines))
-               (recur (rest lines) (str sofar trimmed)))))
-       (list sofar))))
+     (lazy-seq
+      (if-let [line (first lines)]
+        (if (empty? sofar)
+          (linify (next lines) line)
+          (let [trimmed (clojure.string/trim line)]
+            (if (= line trimmed)
+              (cons sofar (linify lines))
+              (linify (next lines) (str sofar trimmed)))))
+        (cons sofar ())))))
 
 (defn parsify
   "Split line at leftmost : and then at ;s returning a vector of
