@@ -4,13 +4,13 @@
   "Return the string base64-decoded from s."
   [s]
   (let [ks "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-        c2i (into {} (map (fn [k v] [k v]) ks (range 0 (count ks))))]
+        c2i (zipmap ks (range 0 (count ks)))
+        bivo #(BigInteger/valueOf %)]
     (apply str
-           (map char (.toByteArray
-                      (reduce
-                       (fn [bi c]
-                         (.or (.shiftLeft bi 6) (BigInteger/valueOf (c2i c))))
-                       (BigInteger/valueOf 0) s))))))
+           (map char
+                (.toByteArray
+                 (reduce (fn [bi c] (.or (.shiftLeft bi 6) (bivo (c2i c))))
+                         (bivo 0) s))))))
 
 ;; 2.00 oz spiced rum (Captain Morgan's)
 ;; 1.00 oz Cointreau
