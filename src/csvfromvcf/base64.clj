@@ -1,16 +1,20 @@
 (ns csvfromvcf.base64)
 
+(def ^{:doc "Map base64 character to 6-bit integer for decoding."
+       :private true}
+  c2i
+  (let [ks "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"]
+    (zipmap ks (range 0 (count ks)))))
+
 (defn base64-decode
   "Return the string base64-decoded from s."
   [s]
-  (let [ks "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-        c2i (zipmap ks (range 0 (count ks)))
-        bivo #(BigInteger/valueOf %)]
-    (apply str
-           (map char
-                (.toByteArray
-                 (reduce (fn [bi c] (.or (.shiftLeft bi 6) (bivo (c2i c))))
-                         (bivo 0) s))))))
+  (apply str
+         (map char
+              (.toByteArray
+               (reduce (fn [bi c]
+                         (.or (.shiftLeft bi 6) (BigInteger/valueOf (c2i c))))
+                       (BigInteger/valueOf 0) s)))))
 
 ;; 2.00 oz spiced rum (Captain Morgan's)
 ;; 1.00 oz Cointreau
