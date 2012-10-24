@@ -1,5 +1,6 @@
-(ns csvfromvcf.core
-  (:require [clojure.java.io]))
+(ns csvfromvcf.vcard
+  (:require [clojure.java.io])
+  (:use [csvfromvcf.base64]))
 
 (defn linify
   "Join multiple lines from lines on CRLFSP sequences."
@@ -47,18 +48,24 @@
                 :else :ignore)
           :else :ignore)))
 
+(def base64? #{:note})
+
 (defn pairify
   "Turn line into a pair vector with PropertyName key and
   PropertyValue value."
   [line]
-  (let [[parameters values] (parsify line)]
-    [(classify parameters)
-     (clojure.string/join "\n" (remove clojure.string/blank? values))]))
+  (let [[parameters values] (parsify line)
+        k (classify parameters)
+        decode (if (base64? k) base64-decode identity)]
+    [k (clojure.string/join
+        "\n"
+        (map decode (remove clojure.string/blank? values)))]))
 
 (defn mapify
   "Return a map of PropertyName to vector of PropertyValues
   representing the vCard file cf."
   [cf]
+  (println "mapify" cf)
   (with-open [in (clojure.java.io/reader cf)]
     (reduce (fn [m [k v]] (assoc m k (conj (m k []) v)))
             {} (map pairify (linify (line-seq in))))))
