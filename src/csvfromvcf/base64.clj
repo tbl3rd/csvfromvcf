@@ -6,12 +6,12 @@
   (let [ks "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"]
     (zipmap ks (range 0 (count ks)))))
 
-(defn quad
+(defn- quad
   "Convert sequence s into a sequence of sequences of up to 4 characters."
   [s]
   (partition-all 4 (filter c2i s)))
 
-(defn decode-chunk
+(defn- decode-chunk
   "Decode a chunk of 2 to 4 base64 characters."
   [chunk]
   (let [n (count chunk)
