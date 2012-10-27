@@ -16,10 +16,10 @@
   [chunk]
   (let [n (count chunk)
         i (reduce (fn [i c] (bit-or (bit-shift-left i 6) (c2i c))) 0 chunk)
-        x (fn [r] #(bit-and 0xff (bit-shift-right % r)))]
-    (cond (= n 4) [((x 16) i) ((x 8) i) ((x 0) i)]
-          (= n 3) [((x 10) i) ((x 2) i)]
-          (= n 2) [((x  4) i)])))
+        x (fn [r] (bit-and 0xff (bit-shift-right i r)))]
+    (cond (= n 4) [(x 16) (x 8) (x 0)]
+          (= n 3) [(x 10) (x 2)]
+          (= n 2) [(x  4)])))
 
 (defn base64->bytes
   "Decode the sequence s of base64 characters into a byte sequence."
