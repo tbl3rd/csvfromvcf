@@ -1,6 +1,7 @@
 (ns csvfromvcf.vcard
+  (:use [csvfromvcf.base64])
   (:require [clojure.java.io])
-  (:use [csvfromvcf.base64]))
+  (:import [java.io FileWriter]))
 
 (defn- linify
   "Join multiple lines from lines on CRLFSP sequences."
@@ -42,7 +43,8 @@
           (= tag "VERSION") :version
           (= tag "X-WV-ID") :userid
           (= tag "TEL")
-          (cond (some #{"CELL"} props) :mobile
+          (cond (some #{"FAX"} props) :fax
+                (some #{"CELL"} props) :mobile
                 (some #{"HOME"} props) :home
                 (some #{"WORK"} props) :work
                 (some #{"VOICE"} props) :voice
@@ -108,6 +110,9 @@
 
 (defn -main
   [& args]
-  (doseq [arg args] (csvify (cardify arg))))
+  (if (empty? args)
+    (println "Usage: out.csv vcf-directory")
+    (binding [*out* (java.io.FileWriter. (first args))]
+      (doseq [arg (rest args)] (csvify (cardify arg))))))
 
-;; (-main "/Users/tbl/Nokia/contacts")
+;; (-main "/Users/tbl/Nokia/contacts.csv" "/Users/tbl/Nokia/contacts")
